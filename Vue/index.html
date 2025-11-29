@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>After School App</title>
+        <script src="https://unpkg.com/vue@2.7.8/dist/vue.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    </head>
+    <body>
+        <div id="app">
+            <div style="display:inline-block;">
+                <header>
+                    <h1 v-text="sitename"></h1>
+                </header>
+            </div>
+            
+            <main>
+                <div style="text-align: right">
+                    <button v-on:click='showCheckout'>
+                        {{cartItemCount}}
+                        <i class="fa-solid fa-cart-shopping"></i>
+                    
+                        Checkout
+                    </button>
+                </div>
+                <div v-if='showLesson'>
+                    <div v-for="lesson in sortedLessons">
+                        <!-- the code for the lesson page -->
+                        <div style="display:inline-block;">
+                            <figure>
+                                <!-- bind 'src' attr to 'lesson.image' in 'data' -->
+                                <img v-bind:src="lesson.image">
+                            </figure>
+                        </div>
+                        <div style="display:inline-block;">
+                            <h2 v-text="lesson.title"></h2>
+                            <p v-html="lesson.location"></p>
+
+                            <!-- The double curly brackets is used instead of 'v-text' -->
+                            <p>Price: {{lesson.price}}</p>
+                            <button v-on:click='addToCart(lesson)' v-if='canAddToCart(lesson)'> Add to cart</button>
+                            
+                            <span v-if='lesson.availableSpaces === cartCount(lesson.id)'>No spaces!</span>
+                            <span v-else-if="lesson.availableSpaces - cartCount(lesson.id) < 5">
+                                Only {{lesson.availableSpaces - cartCount(lesson.id)}} spaces left!
+                            </span>
+                            <span v-else>Enrol now!</span>
+                            <br>
+                        </div>
+                    </div>
+                </div>
+                <div v-else>
+                    <!-- the code for the checkout page -->
+                    <h2>Checkout</h2>
+                    <p>
+                        <strong>First Name:</strong>
+                        <!-- This input field is bound to 'firstName' in the 'order' object -->
+                        <input v-model.trim="order.firstName"/>
+
+                    </p>
+                    <p>
+                        <strong>Last Name:</strong>
+                        <!-- This input field is bound to 'lastName' in the 'order' object -->
+                         <input v-model.trim="order.lastName"/>
+                    </p>
+                    <p>
+                        <strong>Address:</strong> <input v-model="order.address"/>
+                    </p>
+                    <p>
+                        <strong>City:</strong> <input v-model="order.city"/>
+                    </p>
+                    <p>
+                        <strong>State:</strong>
+                        <select v-model="order.state">
+                            <option disabled value="">State</option>
+                            <option v-for="(state, key) in states"
+                            v-bind:value="state">
+                            {{key}}
+                        </option>
+                        </select>
+                    </p>
+                    <p>
+                        <strong>Zip/Postal Code:</strong> <input v-model.number="order.zip" type="number"/>
+                    </p>
+                    <p>
+                        <input type="checkbox" id="scholarship" value="true" v-model="order.scholarship"
+                        v-bind:true-value="order.enrolWithScholarship"
+                        v-bind:false-value="order.enrolWithoutScholarship">
+                        
+                        <label for="scholarship">Enrol with Scholarship?</label>
+                    </p>
+                    <p>
+                        <input type="radio" id="home" value="Home" v-model="order.premises">
+                        <label for="home">Home</label>
+                        <input type="radio" id="school" value="School" v-model="order.premises">
+                        <label for="school">School</label>
+                    </p>
+                    <h2>Order Information</h2>
+                    <p>First Name: {{order.firstName}}</p>
+                    <p>Last Name: {{order.lastName}}</p>
+                    <p>Adress: {{order.address}}</p>
+                    <p>City: {{order.city}}</p>
+                    <p>State: {{order.state}}</p>
+                    <p>Zip: {{order.zip}}</p>
+                    <p>Scholarship? {{order.scholarship}}</p>
+                    <p>Premises: {{order.premises}}</p>
+                    <button v-on:click="submitForm">Place Order</button>
+                </div>
+            </main>
+        </div>
+        <script src="lessons.js"></script>
+        <script type="text/javascript">
+            var webstore = new Vue({
+                el:'#app',//<===Don't forget this comma
+                data: { //the 'data' option
+                    //the key 'sitename' matches the value of 'v-text' earlier
+                    sitename: 'After School App',
+                    states: {
+                        EN: 'England',
+                        WA: 'Wales',
+                        SC: 'Scotland',
+                        NI: 'Northern Ireland'
+                    },
+                    showLesson: true,
+                    order: {
+                        firstName: '',
+                        lastName: '',
+                        address: '',
+                        city: '',
+                        zip: '',
+                        state: '',
+                        premises: 'School',
+                        scholarship: false,
+                        enrolWithScholarship: 'Enrol with scholarship',
+                        enrolWithoutScholarship: 'Enrol without scholarship'
+                    },
+                    //The first 'prodcuts' is a Vue property
+                    //The second lessons is the array from 'lessons.js'
+                    lessons: lessons,
+                    cart: [] // array to store items in shopping cart
+                },
+                methods: {
+                    addToCart(lesson) {
+                        this.cart.push(lesson.id);
+                    },
+                    canAddToCart(lesson) {
+                        return lesson.availableSpaces > this.cartCount(lesson.id);
+                    },
+                    cartCount(id) {
+                        let count = 0;
+                        for(let i = 0; i < this.cart.length; i++) {
+                            if (this.cart[i] === id) {
+                                count++;
+                            }
+                        }
+                        return count;
+                    },
+                    showCheckout() {
+                        this.showLesson = this.showLesson ? false : true; 
+                    },
+                    submitForm() {alert('Order submitted!')}
+                },
+                computed: { //the Computed Property object
+                    cartItemCount: function() {//the property name
+                        //its value is calculated when it's called
+                        return this.cart.length || "";
+                    },
+                    itemsLeft() {
+                        return this.lesson.availableSpaces - this.cartItemCount;
+                    },
+                    sortedLessons() {
+                        //the comparison function that defines the order
+                        function compare(a, b) {
+                            if (a.price > b.price) return 1;
+                            if (a.price < b.price) return -1;
+                            return 0;
+                        }
+                        
+                        // sort the 'lessons' array and return it
+                        return this.lessons.sort(compare);
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>
