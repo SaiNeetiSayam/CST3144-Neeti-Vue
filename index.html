@@ -151,10 +151,10 @@
                                     afterSchool.lessons = json;
                                     console.log(json);
                                     //modify the images with full Render path
-                                    for (const lesson in afterSchool.lessons)   {
-                                        lesson.image = 'https://cst3144-neeti-express.onrender.com/' + lesson.image;
-                                        console.log(lesson);
+                                    for (let i = 0; i < afterSchool.lessons; i++)   {
+                                        afterSchool.lessons[i].image = 'https://cst3144-neeti-express.onrender.com/' + afterSchool.lessons[i].image
                                     }
+                                    console.log(afterSchool.lessons);
                                 });
                         }
                     )
