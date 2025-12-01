@@ -32,7 +32,7 @@
                             </figure>
                         </div>
                         <div style="display:inline-block;">
-                            <h2 v-text="lesson.title"></h2>
+                            <h2 v-text="lesson.subject"></h2>
                             <p v-html="lesson.location"></p>
 
                             <!-- The double curly brackets is used instead of 'v-text' -->
@@ -107,9 +107,8 @@
                 </div>
             </main>
         </div>
-        <script src="lessons.js"></script>
         <script type="text/javascript">
-            var webstore = new Vue({
+            var afterSchool = new Vue({
                 el:'#app',//<===Don't forget this comma
                 data: { //the 'data' option
                     //the key 'sitename' matches the value of 'v-text' earlier
@@ -135,8 +134,25 @@
                     },
                     //The first 'prodcuts' is a Vue property
                     //The second lessons is the array from 'lessons.js'
-                    lessons: lessons,
+                    //lessons: lessons,
+                    //We need to read lessons from the server/database
+                    lessons: [], // array to read lessons from the server
                     cart: [] // array to store items in shopping cart
+                },
+                created: function () {
+                    console.log('requesting data from server ...');
+
+                    fetch('http://localhost:3000/collection/lessons').then (
+                        function (response) {
+                            response.json().then (
+                                function (json) {
+                                    // save the returned JSON object to
+                                    // 'product' data property
+                                    afterSchool.lessons = json;
+                                    console.log(json);
+                                });
+                        }
+                    )
                 },
                 methods: {
                     addToCart(lesson) {
