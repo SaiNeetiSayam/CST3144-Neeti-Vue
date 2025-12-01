@@ -142,19 +142,50 @@
                 created: function () {
                     console.log('requesting data from server ...');
 
-                    fetch('http://localhost:3000/collection/lessons').then (
-                        function (response) {
-                            response.json().then (
-                                function (json) {
-                                    // save the returned JSON object to
-                                    // 'product' data property
-                                    afterSchool.lessons = json;
-                                    console.log(json);
-                                });
-                        }
-                    )
+                    fetch("https://cst3144-neeti-express.onrender.com/config")
+                            .then(res => res.json())
+                            .then(cfg => {
+                                console.log("Render server:", cfg.baseUrl);
+
+                                fetch(`${cfg.baseUrl}/collection/lessons`).then (
+                                    function (response) {
+                                        response.json().then (
+                                            function (json) {
+                                                // save the returned JSON object to
+                                                // 'product' data property
+                                                afterSchool.lessons = json;
+                                                console.log(json);
+                                            });
+                                    }
+                                )
+                            })
+                            .then(res => res.json())
+                            .then(console.log);
+                            
+                    // fetch('http://localhost:3000/collection/lessons').then (
+                    //     function (response) {
+                    //         response.json().then (
+                    //             function (json) {
+                    //                 // save the returned JSON object to
+                    //                 // 'product' data property
+                    //                 afterSchool.lessons = json;
+                    //                 console.log(json);
+                    //             });
+                    //     }
+                    // )
                 },
                 methods: {
+                    getServerPath() {
+                        fetch("https://cst3144-neeti-express.onrender.com/config")
+                            .then(res => res.json())
+                            .then(cfg => {
+                                console.log("Render server:", cfg.baseUrl);
+
+                                return fetch(`${cfg.baseUrl}/api/data`)
+                            })
+                            .then(res => res.json())
+                            .then(console.log);
+                    },
                     addToCart(lesson) {
                         this.cart.push(lesson.id);
                     },
