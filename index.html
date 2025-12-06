@@ -151,24 +151,27 @@
                     async updateAvailableSpaces() {
                         console.log('lessons.length = ' + this.lessons.length);
                         for(let i = 0; i < this.lessons.length; i++) {
-                            try {
-                                console.log(`lessons[i]._id = ${this.lessons[i]._id}`);
-                                console.log('lessons[i] = ' + JSON.stringify(this.lessons[i]));
-                                const response = await fetch(`https://cst3144-neeti-express.onrender.com/collection/lessons/${this.lessons[i]._id}`, {
-                                    method: "PUT",
-                                    headers: {
-                                        "Content-Type": "application/json"
-                                    },
-                                    body: JSON.stringify({
-                                        availableSpaces: this.lessons[i].availableSpaces
-                                    })
-                                });
 
-                                const result = await response.json();
-                                console.log("PUT Response:", result);
+                            //If the cart contains lesson with this id, only then update the available spaces in the database
+                            if (this.cartCount(this.lessons[i].id) > 0) {
+                                try {
+                                    console.log(`this.lessons[i]._id = ${this.lessons[i]._id}`);
 
-                            } catch (error) {
-                                console.error("PUT Error:", error);
+                                    console.log('Available spaces left for this lesson = ' + String(this.lessons[i].availableSpaces - this.cartCount(this.lessons[i].id)));
+                                    const response = await fetch(`https://cst3144-neeti-express.onrender.com/collection/lessons/${this.lessons[i]._id}`, {
+                                        method: "PUT",
+                                        headers: {
+                                            "Content-Type": "application/json"
+                                        },
+                                        body: JSON.stringify({
+                                            availableSpaces: this.lessons[i].availableSpaces - this.cartCount(this.lessons[i].id)
+                                        })
+                                    });
+                                    const result = await response.json();
+                                    console.log("PUT Response:", result);
+                                } catch (error) {
+                                    console.error("PUT Error:", error);
+                                }
                             }
                         }
                     },
