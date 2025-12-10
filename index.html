@@ -206,6 +206,8 @@
                         this.postOrderDetails(); // POST order details to the server
                         console.log('Sending available spaces update to the server ...');
                         this.updateAvailableSpaces(); // update available spaces in each lesson (using PUT) to the server
+                        //Empty Cart
+                        this.cart.length = 0;
                     },
                 },
                 computed: { //the Computed Property object
