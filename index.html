@@ -187,7 +187,8 @@
                                             "Content-Type": "application/json"
                                         },
                                         body: JSON.stringify({
-                                            availableSpaces: this.lessons[i].availableSpaces - this.cartCount(this.lessons[i].id)
+                                            //If this lesson id is found in the cart, reduce this count from available spaces for the lesson
+                                            availableSpaces: this.lessons[i].availableSpaces - this.cartCount(this.lessons[i].id) 
                                         })
                                     });
                                     const result = await response.json();
