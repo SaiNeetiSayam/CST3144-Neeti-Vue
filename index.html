@@ -37,8 +37,11 @@
 
                             <!-- The double curly brackets is used instead of 'v-text' -->
                             <p>Price: {{lesson.price}}</p>
-                            <!-- <button v-on:click='addToCart(lesson)' v-if='canAddToCart(lesson)'> Add to cart</button> --> <!-- This will hide the button when canAddToCart returns false. -->
-                            <button v-on:click='addToCart(lesson)' :disabled='!canAddToCart(lesson)'> Add to cart</button> <!-- This will disable the button when canAddToCart returns flase. -->
+                            <!-- This will hide the button when canAddToCart returns false. -->
+                            <!-- <button v-on:click='addToCart(lesson)' v-if='canAddToCart(lesson)'> Add to cart</button> --> 
+                        
+                            <!-- This will disable the button when canAddToCart returns false. -->
+                            <button v-on:click='addToCart(lesson)' :disabled='!canAddToCart(lesson)'> Add to cart</button> 
                             
                             <span v-if='lesson.availableSpaces === cartCount(lesson.id)'>No spaces!</span>
                             <span v-else-if="lesson.availableSpaces - cartCount(lesson.id) < 5">
@@ -71,7 +74,7 @@
         <script type="text/javascript">
             var afterSchool = new Vue({
                 el:'#app',//<===Don't forget this comma
-                data() {
+                data() {    // returns default null string values for name and phone no., if not entered by user
                     return {
                         name: "",
                         phone: ""
@@ -89,6 +92,7 @@
                     lessons: [], // array to read lessons from the server
                     cart: [] // array to store items in shopping cart
                 },
+                //  Fetch function to GET all the lessons from mongoDB database in lessons collection
                 created: function () {
                     console.log('requesting data from server ...');
                             
@@ -129,6 +133,7 @@
                     canCheckOut() {
                         return this.order.name !== "" && this.order.phone !== ""; 
                     },
+                    //  Fetch function to POST order details to mongoDB database in orders collection
                     async postOrderDetails() {
                         try {
                             const response = await fetch("https://cst3144-neeti-express.onrender.com/collection/orders", {
@@ -148,6 +153,7 @@
                             console.error("POST Error:", error);
                         }
                     },
+                    //  Fetch function to PUT available spaces to mongoDB database in lessons collection
                     async updateAvailableSpaces() {
                         console.log('lessons.length = ' + this.lessons.length);
                         for(let i = 0; i < this.lessons.length; i++) {
