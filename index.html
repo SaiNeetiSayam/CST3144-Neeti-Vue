@@ -52,7 +52,8 @@
 
                             <!-- The double curly brackets is used instead of 'v-text' -->
                             <p>Price: {{lesson.price}}</p>
-                            <p>Spaces: {{lesson.availableSpaces}}</p>
+                            <!-- Demo feedback - display the spaces left (take away cartCount(lesson.id) from lesson.availableSpaces) -->
+                            <p>Spaces: {{lesson.availableSpaces - cartCount(lesson.id)}}</p>
                             <!-- This will hide the button when canAddToCart returns false. -->
                             <!-- <button v-on:click='addToCart(lesson)' v-if='canAddToCart(lesson)'> Add to cart</button> --> 
                         
