@@ -4,6 +4,7 @@
         <title>Neeti's After School App</title>
         <script src="https://unpkg.com/vue@2.7.8/dist/vue.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+        <link rel="stylesheet" href="assets/css/app.css">
     </head>
     <body>
         <div id="app">
@@ -22,22 +23,23 @@
                         Shopping Cart
                     </button>
                 </div>
-                <div style="margin-bottom: 20px;">
-                    <label>Sort by:</label>
-                    <select v-model="sortBy">
-                        <option value="subject">Subject</option>
-                        <option value="location">Location</option>
-                        <option value="price">Price</option>
-                        <option value="availableSpaces">Available Spaces</option>
-                    </select>
-
-                    <label>Order:</label>
-                    <select v-model="sortOrder">
-                        <option value="asc">Ascending</option>
-                        <option value="desc">Descending</option>
-                    </select>
-                </div>
                 <div v-if='showLesson'>
+                    <div style="margin-bottom: 20px;">
+                        <label>Sort by:</label>
+                        <select v-model="sortBy">
+                            <option value="subject">Subject</option>
+                            <option value="location">Location</option>
+                            <option value="price">Price</option>
+                            <option value="availableSpaces">Available Spaces</option>
+                        </select>
+
+                        <label>Order:</label>
+                        <select v-model="sortOrder">
+                            <option value="asc">Ascending</option>
+                            <option value="desc">Descending</option>
+                        </select>
+                    </div>
+                    
                     <div v-for="lesson in sortedLessons">
                         <!-- the code for the lesson page -->
                         <div style="display:inline-block;">
@@ -84,6 +86,30 @@
                     <h2>Order Information</h2>
                     <p>Name: {{order.name}}</p>
                     <p>Phone: {{order.phone}}</p>
+                    <p>Order Details:</p>
+                    <!-- Display the Order Details in a table -->                                                
+                    <table>
+                        <!-- Header Row -->
+                        <tr>
+                        <th>Lesson</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Amount</th>
+                        </tr>
+
+                        <!-- Data Rows -->
+                        <tr v-for="(row, rowIndex) in order.lessonsSelected" :key="rowIndex">
+                            <td v-for="(cell, colIndex) in row" :key="colIndex">
+                                {{ cell }}
+                            </td>
+                        </tr>
+                    </table>
+                    <p>
+                        <strong>Total: AED </strong>
+                        <!-- This input field is bound to 'billTotal' in the 'order' object -->
+                        <input v-model.trim="order.billTotal" />
+                    </p>                    
+
                     <button v-on:click="submitForm" :disabled='!canCheckOut()'>Check Out</button>
                 </div>
             </main>
@@ -94,7 +120,8 @@
                 data() {    // returns default null string values for name and phone no., if not entered by user
                     return {
                         name: "",
-                        phone: ""
+                        phone: "",
+                        billTotal: 0
                     }
                 },
                 data: { //the 'data' option
@@ -103,7 +130,9 @@
                     showLesson: true,
                     order: {
                         name: '',
-                        phone: ''
+                        phone: '',
+                        billTotal: 0,       //Used for calculating the Bill total
+                        lessonsSelected: [] //Used for printing order details
                     },
                     //We need to read lessons from the server/database
                     lessons: [], // array to read lessons from the server & database
@@ -147,7 +176,24 @@
                         return this.cart.length > 0;
                     },
                     showShoppingCart() {
-                        this.showLesson = this.showLesson ? false : true; 
+                        this.showLesson = this.showLesson ? false : true;
+
+                        //If Shopping Cart is clicked, then display the order details
+                        if (!this.showLesson)   {
+                            //Populate lessonsSelected array and calculate billTotal
+                            this.order.billTotal = 0;
+                            this.order.lessonsSelected.length = 0;
+
+                            for(let i = 0; i < this.lessons.length; i++) {
+                                lesson = this.lessons[i];
+                                console.log('Lessons found with this LessonID = ' + this.cartCount(lesson.id));
+                                if (this.cartCount(lesson.id) > 0) {
+                                    amount = this.cartCount(lesson.id) * lesson.price;
+                                    this.order.lessonsSelected.push([lesson.subject, lesson.price, this.cartCount(lesson.id), amount]);
+                                    this.order.billTotal += amount;
+                                }                            
+                            }                        
+                        } 
                     },
                     canCheckOut() {
                         return this.order.name !== "" && this.order.phone !== ""; 
@@ -211,6 +257,20 @@
                         this.updateAvailableSpaces(); // update available spaces in each lesson (using PUT) to the server
                         //Empty Cart
                         this.cart.length = 0;
+
+                        console.log('re-fetch Lessons data from server as available spaces have been updated based on the selection...');
+                        fetch('https://cst3144-neeti-express.onrender.com/collection/lessons').then (
+                            function (response) {
+                                response.json().then (
+                                    function (json) {
+                                        // save the returned JSON object to
+                                        // 'lessons' data property
+                                        afterSchool.lessons = json;
+                                        console.log(json);
+                                    });
+                            }
+                        )
+
                     },
                 },
                 computed: { //the Computed Property object
