@@ -7,14 +7,14 @@ body {
     max-width: 970px;
     height: 100vh;
     background-image: url("https://cst3144-neeti-express.onrender.com/images/afterSchool.jpg");
-    background-size: auto;
+    background-size: contain;
     background-attachment: fixed;    
 }
 
 table {
   border-collapse: collapse;
   width: 60%;
-  margin: 20px auto;
+  margin: 40px;
 }
 
 th, td {
