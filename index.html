@@ -86,12 +86,13 @@
                     <h2>Order Information</h2>
                     <p>Name: {{order.name}}</p>
                     <p>Phone: {{order.phone}}</p>
-                    <p>Order Details:</p>
+                    <h2>Order Details:</h2>
                     <!-- Display the Order Details in a table -->                                                
                     <table>
                         <!-- Header Row -->
                         <tr>
                         <th>Id</th>
+                        <th>Icon</th>
                         <th>Lesson</th>
                         <th>Location</th>
                         <th>Price</th>
@@ -102,7 +103,8 @@
                         <!-- Data Rows -->
                         <tr v-for="(row, rowIndex) in order.lessonsSelected" :key="rowIndex">
                             <td v-for="(cell, colIndex) in row" :key="colIndex">
-                                {{ cell }}
+                                <span v-if="colIndex !== 1">{{ cell }}</span>
+                                <img v-else :src="cell" width="50">
                             </td>
                         </tr>
                     </table>
@@ -197,7 +199,7 @@
                                 console.log('Lessons found with this LessonID = ' + this.cartCount(lesson.id));
                                 if (this.cartCount(lesson.id) > 0) {
                                     amount = this.cartCount(lesson.id) * lesson.price;
-                                    this.order.lessonsSelected.push([lesson.id, lesson.subject, lesson.location, lesson.price, this.cartCount(lesson.id), amount]);
+                                    this.order.lessonsSelected.push([lesson.id, lesson.image, lesson.subject, lesson.location, lesson.price, this.cartCount(lesson.id), amount]);
                                     this.order.billTotal += amount;
                                 }                            
                             }                        
